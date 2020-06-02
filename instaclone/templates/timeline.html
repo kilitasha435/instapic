@@ -1,50 +1,286 @@
+{% extends 'base.html' %}
 {% load bootstrap4 %}
-{% load static %}
 
 
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-<meta name="HandheldFriendly" content="true">
+{% block content %}
 
 
-    {% if title %}
-    <title>Instagram - {{title}}</title>
-    {% else %}
-      <title> Instagram </title>
-    {% endif %}
+<div class="container">
 
-    {% block styles %}
-      {% bootstrap_css %}
-      <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.2/jquery.fancybox.css" />
-      <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet">
-      <link href="https://fonts.googleapis.com/css?family=Poiret+One" rel="stylesheet">
-      <link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.5.15/css/mdb.min.css" rel="stylesheet">
-      <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
-      <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-    {% endblock %}
-    <link rel="icon" href="http://nicgraham.com/img/instagram3.png" type="image/png">
-    <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/240px-Instagram_icon.png" type="image/png">
-  </head>
-  <body>
+    <div class="css-typing">
+        <p>Hi {{user.username}}!</p>
+       
+      </div>
 
-    {% include "navbar.html" %}
 
-    {% block content %}
-    {% endblock %}
 
-    {% block scripts %}
-      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-      {% bootstrap_javascript %}
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.2/jquery.fancybox.js"></script>
-      <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-      <script src="{% static 'js/scripts.js' %}"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.5.15/js/mdb.min.js"></script>
-    {% endblock %}
 
-  </body>
-</html>
+  <div class="row">
+
+    <div class="col-md-8 col-lg-8 feed">
+    <div class="row">
+      {% for post in posts %}
+          <div class="card mb-5" style="width: 45rem;">
+            <div class="custom-card-header">
+              <div class="float-left modal-image">
+                {% if post.upload_by.profile_pic %}
+                  <img src="{{post.upload_by.profile_pic.url}}" class="rounded-circle img-fluid m-1" alt=""  width="75px" height="75px">
+                {% else %}
+                  <img src="https://i0.wp.com/www.winhelponline.com/blog/wp-content/uploads/2017/12/user.png?fit=256%2C256&quality=100&ssl=1" class="rounded-circle img-fluid" alt=""  width="75px" height="75px">
+                {% endif %}
+              </div>
+
+              <p class="username m-1">{{post.upload_by.username}}</p><br>
+              <small class="location m-1">{{post.location}}</small>
+            </div>
+
+            <a href="{{post.photo_pic.url}}" data-fancybox="images" data-buttons='["zoom","slideShow","fullScreen","thumbs","share","close"]' data-caption='<p>{{post.upload_by.username}}</p>
+                                                                    <p>{{post.caption}}</p>
+                                                                    <p>Location: {{post.location}}</p>'>
+
+            <img src="{{post.photo_pic.url}}" class="gallery-image ml-1" height="99%" width="99%">
+            </a>
+
+            <p class="card-text username"><span class="caption"> {{post.caption | safe}}</span></p>
+
+            <div class="card-body">
+              <div class="card-footer-section">
+                <h5 class="card-title username float-left">{{post.likes}} likes</h5>
+
+                {% with temp=request.user.id|stringformat:"i"|add:"-"  %}
+                {% with control=post.id|stringformat:"i" %}
+                {% with tempcontrol=temp|add:control %}
+
+
+                {% if tempcontrol in likez %}
+
+
+                <form action="{%url 'timeline'%}" method="post" enctype="multipart/form-data">
+                  {%csrf_token%}
+                    <input type="hidden" name="unliker" style="position:relative;left:10px" value='{{post.id}}'>
+                    <button class="btn btn-sm btn-link" type="submit"><img src="https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678087-heart-128.png" alt="" width="24px"></button>
+                </form>
+
+
+                {% else %}
+
+                <form action="{%url 'timeline'%}" method="post" enctype="multipart/form-data">
+                  {%csrf_token%}
+                    <input type="hidden" name="liker" style="position:relative;left:10px" value='{{post.id}}'>
+                    <button class="btn btn-sm btn-link" type="submit"><img class="" src="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-ios7-heart-outline-128.png" alt="" width="24px"></button>
+                </form>
+
+                {% endif %}
+
+                {% endwith %}
+                {% endwith %}
+                {% endwith %}
+
+
+
+                <div id="card{{post.id}}" class="mt-2">
+                  {%for comment in comments%}
+                  {%if comment.post.id == post.id%}
+                  <p>
+                    <strong>{{comment.username.username}}</strong> {{comment.comment_content}}
+                  </p>
+                  {%endif%}
+                  {%endfor%}
+
+                  <form  action="{%url 'timeline'%}" method="post" enctype="multipart/form-data">
+                      {%csrf_token%}
+                      <input type="hidden" name="idpost" style="position:relative;left:10px" value='{{post.id}}'>
+                      {% bootstrap_form form layout='inline' %}
+                      <input type="submit" class="btn btn-success btn-md d-none" value="Add Comment">
+                  </form>
+                </div>
+
+              </div>
+            </div>
+
+
+            <div class="modal-footer">
+
+              <div class="text-center">
+
+              </div>
+            </div>
+
+          </div>
+      {% endfor %}
+    </div>
+
+    </div>
+
+    <div class="col-md-1 col-lg-1">
+
+    </div>
+
+
+
+
+    <div class="col-md-3 users-right">
+      <h3>Profiles</h3>
+      <div class="card">
+        <div class="card-body">
+          <hr>
+          
+          {% for profile in profiles%}
+
+          <div class="users-image">
+            {% if profile.profile_pic %}
+              <img src="{{profile.profile_pic.url}}" class="rounded img-fluid" alt=""  width="100px" height="100px">
+            {% else %}
+              <img src="https://i0.wp.com/www.winhelponline.com/blog/wp-content/uploads/2017/12/user.png?fit=256%2C256&quality=100&ssl=1" class="rounded img-fluid" alt=""  width="75px" height="75px">
+            {% endif %}
+            <p  class="profile-username" style="float:right;">  <a href="{% url 'profile' profile.username.id %}">{{profile.username}}</a></p>
+            <button class="btn btn-primary" value='{{user.id}}'>Follow</button>
+            
+            
+
+            <hr>
+
+          </div>
+
+          {% endfor %}
+
+        </div>
+      </div>
+
+    </div>
+
+
+  </div>
+
+  <style>
+      .css-typing p {
+        border-right: .15em solid orange;
+        font-family: "Courier";
+        font-size: 14px;
+        white-space: nowrap;
+        overflow: hidden;
+      }
+      .css-typing p:nth-child(1) {
+        width: 7.3em;
+        -webkit-animation: type 2s steps(40, end);
+        animation: type 2s steps(40, end);
+        -webkit-animation-fill-mode: forwards;
+        animation-fill-mode: forwards;
+      }
+      
+      .css-typing p:nth-child(2) {
+        width: 11.5em;
+        opacity: 0;
+        -webkit-animation: type2 2s steps(40, end);
+        animation: type2 2s steps(40, end);
+        -webkit-animation-delay: 2s;
+        animation-delay: 2s;
+        -webkit-animation-fill-mode: forwards;
+        animation-fill-mode: forwards;
+      }
+      
+      .css-typing p:nth-child(3) {
+        width: 7.3em;
+        opacity: 0;
+        -webkit-animation: type3 5s steps(20, end), blink .5s step-end infinite alternate;
+        animation: type3 5s steps(20, end), blink .5s step-end infinite alternate;
+        -webkit-animation-delay: 4s;
+        animation-delay: 4s;
+        -webkit-animation-fill-mode: forwards;
+        animation-fill-mode: forwards;
+      }
+      
+      @keyframes type {
+        0% {
+          width: 0;
+        }
+        99.9% {
+          border-right: .15em solid orange;
+        }
+        100% {
+          border: none;
+        }
+      }
+      
+      @-webkit-keyframes type {
+        0% {
+          width: 0;
+        }
+        99.9% {
+          border-right: .15em solid orange;
+        }
+        100% {
+          border: none;
+        }
+      }
+      
+      @keyframes type2 {
+        0% {
+          width: 0;
+        }
+        1% {
+          opacity: 1;
+        }
+        99.9% {
+          border-right: .15em solid orange;
+        }
+        100% {
+          opacity: 1;
+          border: none;
+        }
+      }
+      
+      @-webkit-keyframes type2 {
+        0% {
+          width: 0;
+        }
+        1% {
+          opacity: 1;
+        }
+        99.9% {
+          border-right: .15em solid orange;
+        }
+        100% {
+          opacity: 1;
+          border: none;
+        }
+      }
+      
+      @keyframes type3 {
+        0% {
+          width: 0;
+        }
+        1% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+      
+      @-webkit-keyframes type3 {
+        0% {
+          width: 0;
+        }
+        1% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+      
+      @keyframes blink {
+        50% {
+          border-color: transparent;
+        }
+      }
+      @-webkit-keyframes blink {
+        50% {
+          border-color: tranparent;
+        }
+      }
+      </style>
+
+
+{% endblock %}
