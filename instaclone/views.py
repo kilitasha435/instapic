@@ -11,8 +11,9 @@ class PostListView(ListView):
 
 class PostCreateView(CreateView):
     template_name ='Insta/post_create.html'
-    from_class = PostForm
+    form_class = PostForm
     queryset = Post.objects.all()
+    success_url = '/'
 
 
     def form_valid(self, form):
