@@ -54,7 +54,7 @@ class Profile(models.Model):
 class Post(models.Model):
     photo_pic = models.ImageField(upload_to = 'photos/')
     caption = models.CharField(max_length=3000)
-    upload_by = models.ForeignKey(Profile)
+    # upload_by = models.ForeignKey(Profile)
     likes = models.IntegerField(default=0)
     
     post_date=models.DateTimeField(auto_now_add=True)
@@ -104,13 +104,13 @@ class Like(models.Model):
         self.save()
 
 
-class Follow(models.Model):
-    username = models.ForeignKey(User, related_name='follower')
-    followed = models.ForeignKey(User, related_name='followed')
-    follow_id = models.CharField(max_length=50,unique=True, null=True)
+# class Follow(models.Model):
+#     # username = models.ForeignKey(User, related_name='follower')
+#     followed = models.ForeignKey(User, related_name='followed')
+#     follow_id = models.CharField(max_length=50,unique=True, null=True)
 
-    def __str__(self):
-        return self.follow_id
+#     def __str__(self):
+#         return self.follow_id
 
-    def save_like(self):
-        self.save()
+#     def save_like(self):
+#         self.save()
