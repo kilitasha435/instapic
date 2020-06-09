@@ -2,7 +2,7 @@
 
 
 ## Description
-Instalite is a social web application that allows users to upload their photos and see other user's photos. Visit the live site on 
+Instalite is a social web application that allows users to upload their photos and see other user's photos. Visit the live site on https://kilitash.herokuapp.com/
 
 
 ## Author
